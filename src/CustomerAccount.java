@@ -1,8 +1,8 @@
 public class CustomerAccount{
-	private int balance, permissions
+	private int balance, permissions;
 	public CustomerAccount(int permissions, int balance){
 		this.balance = balance;
-		this.permissions = permissions
+		this.permissions = permissions;
 	}
 
 	public int getBalance(){
@@ -10,7 +10,7 @@ public class CustomerAccount{
 	}
 
 	public int getPermissions(){
-		return permissions
+		return permissions;
 	}
 	public void withdraw(int quantity){
 		balance = balance -quantity;
