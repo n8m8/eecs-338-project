@@ -1,5 +1,4 @@
-
-public class AdminTerminal {
+public class AdminTerminal extends Client{
 	public String currentUsername;
 
 	public void login(String username) {

@@ -1,5 +1,5 @@
 
-public class ATM {
+public class ATM extends Client{
 	public String currentUsername;
 	public float cashInMachine;
 	

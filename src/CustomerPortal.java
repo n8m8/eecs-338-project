@@ -1,7 +1,5 @@
-
-public class CustomerPortal {
+public class CustomerPortal extends Client{
 	public String currentUsername;
-	
 	
 	public void login(String username) {
 		
