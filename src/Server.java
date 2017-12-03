@@ -13,13 +13,13 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 public class Server implements Runnable {
-    protected				int serverPortVal;
+    protected static		int serverPortVal;
     protected				ServerSocket serverSocketVal = null;
     protected				boolean hasStopped = false;
     protected				Thread movingThread = null;
     private Hashtable<String,CustomerAccount> userPermissions = new Hashtable<String,CustomerAccount>();
 
-    public void main(String[] args) {
+    public static void main(String[] args) {
     	
     	// Read properties for stuff like port and host
     	try {
