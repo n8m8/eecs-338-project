@@ -126,8 +126,8 @@ public class ClientConnection implements Runnable {
  			ArrayList<String> request = new ArrayList<String>(Arrays.asList(reqString.split("\n")));
  			
   			//processing request
-  			if (userPermissions.containsKey(userRequesting=request.get(0))) {
-  				permissions = userPermissions.get(user);
+  			if (userPermissions.containsKey(userRequesting = request.get(0))) {
+  				permissions = userPermissions.get(userRequesting).getPermissions();
 
   				methodName = request.get(1);
   				//determine if user is real, to be added, or erroneous
@@ -173,6 +173,7 @@ public class ClientConnection implements Runnable {
   					// withdrawl
   					else if (methodName.equals("withdrawl") && (userName.equals(userRequesting) || permissions == 0 || permissions == 2)) {
   						Float transactionAmount= Float.parseFloat(request.get(3));
+  						CustomerAccount user2 = userPermissions.get(request.get(4));
   						if (userAccount.getBalance() >= transactionAmount){
   								user2.deposit(transactionAmount);
   								userAccount.withdraw(transactionAmount);
