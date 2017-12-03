@@ -1,18 +1,34 @@
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
 public abstract class Client {
-	static int port = 8080;
+	static int port;
 	static String hostname = "localhost";
 	
 	private static StringTokenizer st;
+	
+	public Client() {
+		try {
+		FileReader reader = new FileReader("config.properties");
+		
+		Properties p = new Properties();
+		p.load(reader);
+		
+		port = Integer.parseInt(p.getProperty("port"));
+		} catch (Exception e) {
+			System.out.println("Couldn't read config file! Hardcoding to port 8080.");
+			port = 8080;
+		}
+	}
 	
 	public static String sendData(String args) {
 		try {

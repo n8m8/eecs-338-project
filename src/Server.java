@@ -1,22 +1,39 @@
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Hashtable;
 import java.util.ArrayList;
 import java.util.Enumeration;
-
-
+import java.util.Properties;
 
 public class Server implements Runnable {
-    protected int          serverPortVal   = 8080;
-    protected ServerSocket serverSocketVal = null;
-    protected boolean      hasStopped    = false;
-    protected Thread       movingThread= null;
+    protected				int serverPortVal;
+    protected				ServerSocket serverSocketVal = null;
+    protected				boolean hasStopped = false;
+    protected				Thread movingThread = null;
     private Hashtable<String,CustomerAccount> userPermissions = new Hashtable<String,CustomerAccount>();
 
+    public void main(String[] args) {
+    	// Read properties for stuff like port and host
+    	try {
+			FileReader r = new FileReader("config.properties");
+			
+			Properties p = new Properties();
+			p.load(r);
+			
+			serverPortVal = Integer.parseInt(p.getProperty("port"));
+		} catch (Exception e) {
+			System.out.println("Couldn't read config file. Setting port to 8080.");
+			serverPortVal = 8080;
+			e.printStackTrace();
+		}
+    }
+    
     public void ServerMultithreaded(int port) {
         this.serverPortVal = port;
     }
@@ -45,9 +62,11 @@ public class Server implements Runnable {
         }
         System.out.println("Server has Stopped...Please check") ;
     }
+    
     private synchronized boolean hasStopped() {
         return this.hasStopped;
     }
+    
     public synchronized void stop(){
         this.hasStopped = true;
         try {
@@ -56,6 +75,7 @@ public class Server implements Runnable {
             throw new RuntimeException("Server can not be closed - Please check error", e);
         }
     }
+    
     private void opnSvrSocket() {
         try {
             this.serverSocketVal = new ServerSocket(this.serverPortVal);
@@ -66,7 +86,7 @@ public class Server implements Runnable {
 
 public class ClientConnection implements Runnable {
     protected Socket clntSocket = null;
-    protected String txtFrmSrvr   = null;
+    protected String txtFrmSrvr = null;
  	protected int permissions;
  	protected String methodName, userRequesting, destination, userName;
  	protected Float amount;
@@ -88,6 +108,7 @@ public class ClientConnection implements Runnable {
   			while ((inputLine = bis.readLine()) != null) {
      			 request.add(inputLine);
   			}
+  			
   			//processing request
   			if (userPermissions.containsKey(userRequesting=request.get(0))) {
   				permissions = userPermissions.get(user);
@@ -135,7 +156,7 @@ public class ClientConnection implements Runnable {
   					}
   					
   					// withdrawl
-  					else if (methodName.equals("withdrawl") && (userName.equals(userRequesting)|| permissions==0 || permissions== 2)) {
+  					else if (methodName.equals("withdrawl") && (userName.equals(userRequesting) || permissions == 0 || permissions == 2)) {
   						Float transactionAmount= Float.parseFloat(request.get(3));
   						if (userAccount.getBalance() >= transactionAmount){
   								user2.deposit(transactionAmount);
