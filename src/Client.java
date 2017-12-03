@@ -39,16 +39,19 @@ public abstract class Client {
 	// Returns the raw response from the server
 	public static String sendData(String args) {
 		Socket s = null;
-		ObjectOutputStream output = null;
+		OutputStream output = null;
 		InputStream input = null;
 		try {
 			System.out.println("[debug] Opening socket for " + hostname + ":" + port);
 			s = new Socket(hostname, port);
 
-			output = new ObjectOutputStream(s.getOutputStream());
+			output = s.getOutputStream();
 			input = s.getInputStream();
 			System.out.println("[debug] about to write:" + args);
-			output.write(args.getBytes());
+			//output.write(args.getBytes());
+			for (char c : args.toCharArray()) {
+				output.write(c);
+			}
 			output.write(-1);
 			
 			System.out.println("[debug] About to wait for a response");
