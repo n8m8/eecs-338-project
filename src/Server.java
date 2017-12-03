@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Hashtable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -19,6 +20,7 @@ public class Server implements Runnable {
     private Hashtable<String,CustomerAccount> userPermissions = new Hashtable<String,CustomerAccount>();
 
     public void main(String[] args) {
+    	
     	// Read properties for stuff like port and host
     	try {
 			FileReader r = new FileReader("config.properties");
@@ -39,11 +41,13 @@ public class Server implements Runnable {
     }
 
     public void run() {
-        synchronized(this){
+        synchronized(this) {
             this.movingThread = Thread.currentThread();
         }
+        
         opnSvrSocket();
-        while(! hasStopped()){
+        
+        while(!hasStopped()) {
             Socket clntSocket = null;
             try {
                 clntSocket = this.serverSocketVal.accept();
@@ -55,11 +59,11 @@ public class Server implements Runnable {
                 throw new RuntimeException(
                     "Client cannot be connected - Error", e);
             }
-            new Thread(
-                new ClientConnection(
-                    clntSocket, "Please return user ID:")
-            ).start();
+            new Thread(new ClientConnection(
+                       clntSocket, "Please return user ID:")
+                      ).start();
         }
+        
         System.out.println("Server has Stopped...Please check") ;
     }
     
@@ -67,7 +71,7 @@ public class Server implements Runnable {
         return this.hasStopped;
     }
     
-    public synchronized void stop(){
+    public synchronized void stop() {
         this.hasStopped = true;
         try {
             this.serverSocketVal.close();
@@ -94,21 +98,33 @@ public class ClientConnection implements Runnable {
 
     public ClientConnection(Socket clntSocket, String txtFrmSrvr) {
         this.clntSocket = clntSocket;
-        this.txtFrmSrvr   = txtFrmSrvr;
+        this.txtFrmSrvr = txtFrmSrvr;
     }
     
     public void run() {
         try {
+        	InputStream in = clntSocket.getInputStream();
             OutputStream outputstrm = clntSocket.getOutputStream();
+            
             long timetaken = System.currentTimeMillis();
             outputstrm.write(txtFrmSrvr.getBytes());
 
-            BufferedReader bis = new BufferedReader(clntSocket.getInputStream());
- 			ArrayList<String> request = new ArrayList<String>();
-  			while ((inputLine = bis.readLine()) != null) {
-     			 request.add(inputLine);
-  			}
+            // BufferedReader bis = new BufferedReader(clntSocket.getInputStream());
+            
+            
+            
+ 			// ArrayList<String> request = new ArrayList<String>();
+  			// while ((inputLine = bis.readLine()) != null) {
+     		// 	 request.add(inputLine);
+  			// }
   			
+ 			byte[] req = in.readAllBytes();
+ 			
+ 			String reqString = new String(req);
+ 			
+ 			// tricky line; splits the raw request string; Arrays.asList makes it an arrayList; This goes into the ArrayList constructor
+ 			ArrayList<String> request = new ArrayList<String>(Arrays.asList(reqString.split("\n")));
+ 			
   			//processing request
   			if (userPermissions.containsKey(userRequesting=request.get(0))) {
   				permissions = userPermissions.get(user);
@@ -129,10 +145,9 @@ public class ClientConnection implements Runnable {
   					if (methodName.equals("getBalance")) {
   						if(userName.equals(userRequesting)|| permissions==0 || permissions==2){
   							// Java doesn't let you easily turn floats into bytes
-  							// If we want to use bytes we probably have to use the ByteBuffer class
-  							outputstrm.write(userPermissions.get(userName).getBalance().getBytes());
-  						}
-  						else{
+  							// So let's turn it into a string, then a byte[]
+  							outputstrm.write(userPermissions.get(userName).getBalance().toString().getBytes());
+  						} else{
   							outputstrm.write("permission denied".getBytes());
   						}
   					}
@@ -180,7 +195,7 @@ public class ClientConnection implements Runnable {
   			}
   			
             outputstrm.close();
-            inputstrm.close();
+            in.close();
             System.out.println("Your request has processed in time : " + timetaken);
         } catch (IOException e) {           
             e.printStackTrace();

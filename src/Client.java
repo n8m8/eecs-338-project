@@ -12,10 +12,11 @@ import java.util.StringTokenizer;
 
 public abstract class Client {
 	static int port;
-	static String hostname = "localhost";
+	static String hostname;
 	
 	private static StringTokenizer st;
 	
+	// Client constructor to set values from config
 	public Client() {
 		try {
 		FileReader reader = new FileReader("config.properties");
@@ -25,17 +26,23 @@ public abstract class Client {
 		
 		port = Integer.parseInt(p.getProperty("port"));
 		} catch (Exception e) {
-			System.out.println("Couldn't read config file! Hardcoding to port 8080.");
+			System.out.println("Couldn't read config file! Hardcoding to localhost:8080.");
 			port = 8080;
+			hostname = "localhost";
 		}
 	}
 	
+	// Sends data to the server; takes the string to send
+	// Returns the raw response from the server
 	public static String sendData(String args) {
+		Socket s = null;
+		OutputStream output = null;
+		InputStream input = null;
 		try {
-			Socket s = new Socket(hostname, port);
+			s = new Socket(hostname, port);
 			
-			OutputStream output = s.getOutputStream();
-			InputStream input = s.getInputStream();
+			output = s.getOutputStream();
+			input = s.getInputStream();
 			output.write(args.getBytes());
 			
 			byte[] response = input.readAllBytes();
@@ -45,10 +52,27 @@ public abstract class Client {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return("error:failure");
-		}
+			
+		} finally {
+			// Always try to close everything
+			if (!s.isClosed()) {
+				try {
+					s.close();
+				} catch (IOException e1) {}
+			}
+			
+			try {
+				output.close();
+			} catch (Exception e1) {}
 		
+			try {
+				input.close();
+			} catch (Exception e1) {}
+		}
 	}
 	
+	// Tokenizes a string input
+	// Returns each token in a string array
 	public static String[] getToks(String input) {
 		st = new StringTokenizer(input);
 		ArrayList<String> list = new ArrayList<String>();
@@ -58,6 +82,7 @@ public abstract class Client {
 		return list.toArray(new String[list.size()]);
 	}
 	
+	// Helper method to ensure input is valid
 	public static boolean checkNumArgs(String[] input, int numArgs) {
 		if (input.length == numArgs)
 			return true;
