@@ -6,6 +6,7 @@ public class ATM extends Client{
 	public static boolean loginState = false;		// false=noone is logged in, true=user is logged in
 	
 	private static Scanner in;
+	
 	/*  Note: Requests should look like this: 
 	  	name\n
 		method\n
@@ -13,6 +14,11 @@ public class ATM extends Client{
 		Value (amount)
 		Value3\n (destination/permissions for new customer)
 	 */
+
+	// Clients have common init stuff so need constructor calling super()
+	public ATM() {
+		super();
+	}
 
 	// main method works like a shell
 	public static void main(String[] args) {
@@ -36,6 +42,7 @@ public class ATM extends Client{
 					} else {
 						loginState = true;
 						currentUsername = input[1];
+						System.out.println("[debug] response was:" + response);
 						System.out.println("Successfully logged in.");
 					}
 				} else {

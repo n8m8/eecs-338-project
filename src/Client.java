@@ -25,6 +25,8 @@ public abstract class Client {
 		p.load(reader);
 		
 		port = Integer.parseInt(p.getProperty("port"));
+		hostname = p.getProperty("host");
+		System.out.println("[debug] Set init values to " + hostname + ":" + port);
 		} catch (Exception e) {
 			System.out.println("Couldn't read config file! Hardcoding to localhost:8080.");
 			port = 8080;
@@ -39,6 +41,7 @@ public abstract class Client {
 		OutputStream output = null;
 		InputStream input = null;
 		try {
+			System.out.println("[debug] Opening socket for " + hostname + ":" + port);
 			s = new Socket(hostname, port);
 			
 			output = s.getOutputStream();

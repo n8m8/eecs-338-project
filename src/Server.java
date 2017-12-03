@@ -20,7 +20,6 @@ public class Server implements Runnable {
     private Hashtable<String,CustomerAccount> userPermissions = new Hashtable<String,CustomerAccount>();
 
     public static void main(String[] args) {
-    	
     	// Read properties for stuff like port and host
     	try {
 			FileReader r = new FileReader("config.properties");
@@ -34,6 +33,13 @@ public class Server implements Runnable {
 			serverPortVal = 8080;
 			e.printStackTrace();
 		}
+    	
+    	System.out.println("[debug] Calling run.");
+    	Server s = new Server();
+    	Thread t = new Thread(s);
+    	t.start();
+    	
+    	
     }
     
     public void ServerMultithreaded(int port) {
@@ -50,7 +56,9 @@ public class Server implements Runnable {
         while(!hasStopped()) {
             Socket clntSocket = null;
             try {
+            	System.out.println("[debug] Waiting for connection.");
                 clntSocket = this.serverSocketVal.accept();
+                System.out.println("[debug] Accepted connection!");
             } catch (IOException e) {
                 if(hasStopped()) {
                     System.out.println("Server has Stopped...Please check") ;
@@ -59,6 +67,7 @@ public class Server implements Runnable {
                 throw new RuntimeException(
                     "Client cannot be connected - Error", e);
             }
+            System.out.println("[debug] Starting ClientConnection thread.");
             new Thread(new ClientConnection(
                        clntSocket, "Please return user ID:")
                       ).start();
@@ -102,9 +111,13 @@ public class ClientConnection implements Runnable {
     }
     
     public void run() {
+    	System.out.println("[debug] ClientConnection thread started.");
+    	InputStream in = null;
+    	OutputStream outputstrm = null;
+    	
         try {
-        	InputStream in = clntSocket.getInputStream();
-            OutputStream outputstrm = clntSocket.getOutputStream();
+        	in = clntSocket.getInputStream();
+            outputstrm = clntSocket.getOutputStream();
             
             long timetaken = System.currentTimeMillis();
             outputstrm.write(txtFrmSrvr.getBytes());
@@ -121,7 +134,7 @@ public class ClientConnection implements Runnable {
  			byte[] req = in.readAllBytes();
  			
  			String reqString = new String(req);
- 			
+ 			System.out.println("[debug] reqString was:" + reqString);
  			// tricky line; splits the raw request string; Arrays.asList makes it an arrayList; This goes into the ArrayList constructor
  			ArrayList<String> request = new ArrayList<String>(Arrays.asList(reqString.split("\n")));
  			
@@ -195,12 +208,22 @@ public class ClientConnection implements Runnable {
   				outputstrm.write("Sorry invalid request name".getBytes());
   			}
   			
-            outputstrm.close();
-            in.close();
             System.out.println("Your request has processed in time : " + timetaken);
         } catch (IOException e) {           
             e.printStackTrace();
+        } finally {
+        	// Always close everything
+        	try {
+        		clntSocket.close();
+        	} catch (Exception e) {}
+            try {
+				outputstrm.close();
+			} catch (Exception e) {}
+            try {
+				in.close();
+			} catch (Exception e) {}
         }
+        
     }
 }
 
