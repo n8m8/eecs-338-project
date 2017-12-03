@@ -10,18 +10,18 @@ import java.util.Enumeration;
 
 
 
-public class Server implements Runnable{
+public class Server implements Runnable {
     protected int          serverPortVal   = 8080;
     protected ServerSocket serverSocketVal = null;
     protected boolean      hasStopped    = false;
     protected Thread       movingThread= null;
     private Hashtable<String,CustomerAccount> userPermissions = new Hashtable<String,CustomerAccount>();
 
-    public void ServerMultithreaded(int port){
+    public void ServerMultithreaded(int port) {
         this.serverPortVal = port;
     }
 
-    public void run(){
+    public void run() {
         synchronized(this){
             this.movingThread = Thread.currentThread();
         }
@@ -58,13 +58,13 @@ public class Server implements Runnable{
     }
     private void opnSvrSocket() {
         try {
-            this.serverSocketVal = new serverSocketVal(this.serverPortVal);
+            this.serverSocketVal = new ServerSocket(this.serverPortVal);
         } catch (IOException e) {
             throw new RuntimeException("Not able to open the port 8080", e);
         }
     }
 
-public class ClientConnection implements Runnable{
+public class ClientConnection implements Runnable {
     protected Socket clntSocket = null;
     protected String txtFrmSrvr   = null;
  	protected int permissions;
@@ -76,6 +76,7 @@ public class ClientConnection implements Runnable{
         this.clntSocket = clntSocket;
         this.txtFrmSrvr   = txtFrmSrvr;
     }
+    
     public void run() {
         try {
             OutputStream outputstrm = clntSocket.getOutputStream();
@@ -83,58 +84,60 @@ public class ClientConnection implements Runnable{
             outputstrm.write(txtFrmSrvr.getBytes());
 
             BufferedReader bis = new BufferedReader(clntSocket.getInputStream());
- 			ArrayList<String> request = new ArrayList<String>;
-  			while ((inputLine = bis.readLine()) != null)
-  			{
-     			 request.add(inputLine) 
+ 			ArrayList<String> request = new ArrayList<String>();
+  			while ((inputLine = bis.readLine()) != null) {
+     			 request.add(inputLine);
   			}
   			//processing request
-  			if(userPermissions.containsKey(userRequesting=request.get(0))){
+  			if (userPermissions.containsKey(userRequesting=request.get(0))) {
   				permissions = userPermissions.get(user);
 
   				methodName = request.get(1);
   				//determine if user is real, to be added, or erroneous
-  				if(methodName.equals("createUser")){
-  					if(userPermissions.containsKey(userName)){
+  				if (methodName.equals("createUser")) {
+  					if(userPermissions.containsKey(userName)) {
   						outputstrm.write("Sorry, user already exists".getBytes());
   					}
   					else{
-  						userPermissions.add(userName, new CustomerAccount(request.get(4), request.get(3))
+  						userPermissions.put(userName, new CustomerAccount(Integer.parseInt(request.get(4)), Integer.parseInt(request.get(3))));
   						outputstrm.write("Success".getBytes());
   					}
-  				}
-  				else if(userPermissions.containsKey(userName= request.get(2))){
+  				} else if (userPermissions.containsKey(userName= request.get(2))) {
   					userAccount = userPermissions.get(userName);
   					//get balance event
-  					if (methodName.equals("getBalance"){
+  					if (methodName.equals("getBalance")) {
   						if(userName.equals(userRequesting)|| permissions==0 || permissions==2){
-  							outputstrm.write(userPermission.get(userName).getBalance.getBytes());
+  							// Java doesn't let you easily turn floats into bytes
+  							// If we want to use bytes we probably have to use the ByteBuffer class
+  							outputstrm.write(userPermissions.get(userName).getBalance().getBytes());
   						}
   						else{
   							outputstrm.write("permission denied".getBytes());
   						}
   					}
+  					
   					//make payment event
-  					else if(methodName.equals("makePayment")&&(userName.equals(userRequesting) || permissions== 2)){
+  					else if (methodName.equals("makePayment")&&(userName.equals(userRequesting) || permissions== 2)) {
   						Float transactionAmount= Float.parseFloat(request.get(3));
-  						if(userPermissions.containsKey(request.get(4))){
-  							CustomerAccount user2 = userPermissions.get(reqest.get(4));
+  						if (userPermissions.containsKey(request.get(4))) {
+  							CustomerAccount user2 = userPermissions.get(request.get(4));
   							//check if user has funds available
-  							if(userAccount.getBalance>= transactionAmount){
+  							if (userAccount.getBalance() >= transactionAmount) {
   								user2.deposit(transactionAmount);
   								userAccount.withdraw(transactionAmount);
   								outputstrm.write("Success".getBytes());
-  							}
-  							else
+  							} else {
   								outputstrm.write("insufficient funds".getBytes());
-  						}
-  						else
+  							}
+  						} else {
   							outputstrm.write("second user does not exist".getBytes());
+  						}
   					}
+  					
   					// withdrawl
-  					else if(methodName.equals("withdrawl") && (userName.equals(userRequesting)|| permissions==0 || permissions== 2)){
-  						Float transactionAmount= Float.parseFloat(request.get(3))
-  						if(userAccount.getBalance>= transactionAmount){
+  					else if (methodName.equals("withdrawl") && (userName.equals(userRequesting)|| permissions==0 || permissions== 2)) {
+  						Float transactionAmount= Float.parseFloat(request.get(3));
+  						if (userAccount.getBalance() >= transactionAmount){
   								user2.deposit(transactionAmount);
   								userAccount.withdraw(transactionAmount);
   								outputstrm.write("Success".getBytes());
@@ -143,20 +146,18 @@ public class ClientConnection implements Runnable{
   								outputstrm.write("insufficient funds".getBytes());
   					}
   					//deposit
-  					else if(methodName.equals("makePayment")){
+  					else if (methodName.equals("makePayment")) {
   						Float transactionAmount= Float.parseFloat(request.get(3));
-  						userAccount.depost(transactionAmount);
+  						userAccount.deposit(transactionAmount);
   					}
   					
-  				}
-  				
-  				else
+  				} else {
   					outputstrm.write("Sorry invalid userName".getBytes());
-
-  			}
-
-  			else
+  				}
+  			} else {
   				outputstrm.write("Sorry invalid request name".getBytes());
+  			}
+  			
             outputstrm.close();
             inputstrm.close();
             System.out.println("Your request has processed in time : " + timetaken);

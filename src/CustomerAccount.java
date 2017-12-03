@@ -1,22 +1,23 @@
 public class CustomerAccount{
-	private int balance, permissions;
-	public CustomerAccount(int permissions, int balance){
+	private int permissions;
+	private Float balance;
+	public CustomerAccount(int permissions, float balance){
 		this.balance = balance;
 		this.permissions = permissions;
 	}
 
-	public int getBalance(){
+	public Float getBalance(){
 		return balance;
 	}
 
 	public int getPermissions(){
 		return permissions;
 	}
-	public void withdraw(int quantity){
-		balance = balance -quantity;
+	public void withdraw(Float transactionAmount){
+		balance = balance -transactionAmount;
 	}
-	public void deposit(int quantity){
-		balance = balance + quantity;
+	public void deposit(Float transactionAmount){
+		balance = balance + transactionAmount;
 	}
 	public void changePermissions(int permissions){
 		this.permissions = permissions;
