@@ -11,7 +11,7 @@ public class CustomerAccount{
 
 	public Float getBalance(){
 		synchronized (lock) {
-			return balance
+			return balance;
 		}
 	}
 

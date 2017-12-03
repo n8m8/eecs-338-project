@@ -1,30 +1,31 @@
-import java.net.ServerSocket;
+import java.io.FileReader;
+import java.util.Properties;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.util.Hashtable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Properties;
-import java.util.Scanner;
 import java.util.StringTokenizer;
 
 public abstract class Client {
 	static int port;
 	static String hostname;
-	
-	private static StringTokenizer st;
-	
+
+	static StringTokenizer st;
+
+
 	// Client constructor to set values from config
 	public Client() {
 		try {
 		FileReader reader = new FileReader("config.properties");
-		
+
 		Properties p = new Properties();
 		p.load(reader);
-		
+
 		port = Integer.parseInt(p.getProperty("port"));
 		hostname = p.getProperty("host");
 		System.out.println("[debug] Set init values to " + hostname + ":" + port);
@@ -34,7 +35,7 @@ public abstract class Client {
 			hostname = "localhost";
 		}
 	}
-	
+
 	// Sends data to the server; takes the string to send
 	// Returns the raw response from the server
 	public static String sendData(String args) {
@@ -53,19 +54,24 @@ public abstract class Client {
 				output.write(c);
 			}
 			output.write(-1);
-			
+
 			System.out.println("[debug] About to wait for a response");
-			
+
 			byte[] response = input.readAllBytes();
-			
-			System.out.println("[debug] Received the response! " + response.toString());
-			
-			return new String(response);
-			
+
+			String returnString = "";
+			for (byte b : response) {
+				returnString += (char) b;
+			}
+
+			System.out.println("[debug] Received the response! " + returnString);
+
+			return new String(returnString);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			return("error:failure");
-			
+
 		} finally {
 			// Always try to close everything
 			try {
@@ -81,8 +87,8 @@ public abstract class Client {
 			}
 		}
 	}
-	
-	// Tokenizes a string input
+
+	// Helper function for shell functionality, tokenizes a string input
 	// Returns each token in a string array
 	public static String[] getToks(String input) {
 		st = new StringTokenizer(input);
@@ -92,7 +98,7 @@ public abstract class Client {
 		}
 		return list.toArray(new String[list.size()]);
 	}
-	
+
 	// Helper method to ensure input is valid
 	public static boolean checkNumArgs(String[] input, int numArgs) {
 		if (input.length == numArgs)
