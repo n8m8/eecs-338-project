@@ -153,6 +153,7 @@ public class ClientConnection implements Runnable {
  			}
  			
   			//processing request
+        //get permissions for user requesting
   			if (userPermissions.containsKey(userRequesting = request.get(0))) {
   				permissions = userPermissions.get(userRequesting).getPermissions();
 
@@ -166,63 +167,86 @@ public class ClientConnection implements Runnable {
   						userPermissions.put(userName, new CustomerAccount(Integer.parseInt(request.get(4)), Integer.parseInt(request.get(3))));
   						outputstrm.write("Success".getBytes());
   					}
-  				} else if (userPermissions.containsKey(userName= request.get(2))) {
+  				} 
+          //user operation is requested for exists
+          else if (userPermissions.containsKey(userName= request.get(2))) {
   					userAccount = userPermissions.get(userName);
+
   					//get balance event
   					if (methodName.equals("getBalance")) {
   						if(userName.equals(userRequesting)|| permissions==0 || permissions==2){
   							// Java doesn't let you easily turn floats into bytes
   							// So let's turn it into a string, then a byte[]
-  							outputstrm.write(userPermissions.get(userName).getBalance().toString().getBytes());
+  							outputstrm.write(("0 " +userPermissions.get(userName).getBalance().toString()).getBytes());
   						} else{
-  							outputstrm.write("permission denied".getBytes());
+  							outputstrm.write("1 ".getBytes());
   						}
   					}
   					
-  					//make payment event
+  					/*
+            *make payment
+            *checks if user is user requesting or if user requesting has admin rights
+            */
+
   					else if (methodName.equals("makePayment")&&(userName.equals(userRequesting) || permissions== 2)) {
   						Float transactionAmount= Float.parseFloat(request.get(3));
+              //if second user exists
   						if (userPermissions.containsKey(request.get(4))) {
   							CustomerAccount user2 = userPermissions.get(request.get(4));
   							//check if user has funds available
   							if (userAccount.getBalance() >= transactionAmount) {
   								user2.deposit(transactionAmount);
   								userAccount.withdraw(transactionAmount);
-  								outputstrm.write("Success".getBytes());
-  							} else {
-  								outputstrm.write("insufficient funds".getBytes());
+  								outputstrm.write(("0 "+userPermissions.get(userName).getBalance().toString().getBytes())getBytes());
+  							} 
+                //insufficient funds
+                else {
+  								outputstrm.write("3 ".getBytes());
   							}
-  						} else {
-  							outputstrm.write("second user does not exist".getBytes());
+  						} 
+              //second user does not exist
+              else {
+  							outputstrm.write("4 ".getBytes());
   						}
   					}
   					
-  					// withdrawl
+  					/*
+            * withdrawl method
+            *checks if user requesting is user
+            *if not checks that user requesting is an atm or admin
+            */
   					else if (methodName.equals("withdrawl") && (userName.equals(userRequesting) || permissions == 0 || permissions == 2)) {
   						Float transactionAmount= Float.parseFloat(request.get(3));
   						CustomerAccount user2 = userPermissions.get(request.get(4));
+              //checks if user balance is over requested amount
   						if (userAccount.getBalance() >= transactionAmount){
   								user2.deposit(transactionAmount);
   								userAccount.withdraw(transactionAmount);
-  								outputstrm.write("Success".getBytes());
+  								outputstrm.write("0 "+userPermissions.get(userName).getBalance().toString().getBytes())getBytes());
   							}
+                //insufficient funds 
   							else
-  								outputstrm.write("insufficient funds".getBytes());
+  								outputstrm.write("3 ".getBytes());
   					}
   					//deposit
-  					else if (methodName.equals("makePayment")) {
+  					else if (methodName.equals("deposit")) {
   						Float transactionAmount= Float.parseFloat(request.get(3));
   						userAccount.deposit(transactionAmount);
+              outputstrm.write("0 "+userPermissions.get(userName).getBalance().toString().getBytes())getBytes());
+
   					}
+            //methodName not found
+            else{
+              outputstrm.write("5 ".getBytes());
+          
+        }
+            }
   					
-  				} else {
-  					outputstrm.write("Sorry invalid userName".getBytes());
+  				} 
+          //requesting user not found
+          else {
+  					outputstrm.write("2 ".getBytes());
   				}
-  			} else {
-  				outputstrm.write("Sorry invalid request name".getBytes());
-  				
-  			}
-  			
             System.out.println("Your request has processed in time : " + timetaken);
         } catch (IOException e) {           
             e.printStackTrace();
