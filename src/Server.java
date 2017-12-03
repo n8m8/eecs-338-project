@@ -1,10 +1,12 @@
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Hashtable;
-import java.ulil.Enumeration
+import java.util.ArrayList;
+import java.util.Enumeration;
 
 
 
@@ -13,9 +15,9 @@ public class Server implements Runnable{
     protected ServerSocket serverSocketVal = null;
     protected boolean      hasStopped    = false;
     protected Thread       movingThread= null;
-    private Hashtable<String,CustomerAccount> userPermissions = new Hashtable<String,Integer>();
+    private Hashtable<String,CustomerAccount> userPermissions = new Hashtable<String,CustomerAccount>();
 
-    public ServerMultithreaded(int port){
+    public void ServerMultithreaded(int port){
         this.serverPortVal = port;
     }
 
@@ -62,13 +64,13 @@ public class Server implements Runnable{
         }
     }
 
-public class clientConnection implements Runnable{
+public class ClientConnection implements Runnable{
     protected Socket clntSocket = null;
     protected String txtFrmSrvr   = null;
- 	protected int permissions
+ 	protected int permissions;
  	protected String methodName, userRequesting, destination, userName;
  	protected Float amount;
- 	protected CustomerAccount userAccount
+ 	protected CustomerAccount userAccount;
 
     public ClientConnection(Socket clntSocket, String txtFrmSrvr) {
         this.clntSocket = clntSocket;
@@ -81,7 +83,7 @@ public class clientConnection implements Runnable{
             outputstrm.write(txtFrmSrvr.getBytes());
 
             BufferedReader bis = new BufferedReader(clntSocket.getInputStream());
- 			Arraylist<String> request = new Arraylist<String>;
+ 			ArrayList<String> request = new ArrayList<String>;
   			while ((inputLine = bis.readLine()) != null)
   			{
      			 request.add(inputLine) 
