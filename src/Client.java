@@ -4,6 +4,7 @@ import java.net.UnknownHostException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -38,17 +39,23 @@ public abstract class Client {
 	// Returns the raw response from the server
 	public static String sendData(String args) {
 		Socket s = null;
-		OutputStream output = null;
+		ObjectOutputStream output = null;
 		InputStream input = null;
 		try {
 			System.out.println("[debug] Opening socket for " + hostname + ":" + port);
 			s = new Socket(hostname, port);
-			
-			output = s.getOutputStream();
+
+			output = new ObjectOutputStream(s.getOutputStream());
 			input = s.getInputStream();
+			System.out.println("[debug] about to write:" + args);
 			output.write(args.getBytes());
+			output.write(-1);
+			
+			System.out.println("[debug] About to wait for a response");
 			
 			byte[] response = input.readAllBytes();
+			
+			System.out.println("[debug] Received the response! " + response.toString());
 			
 			return new String(response);
 			
@@ -58,19 +65,17 @@ public abstract class Client {
 			
 		} finally {
 			// Always try to close everything
+			try {
+				output.close();
+			} catch (Exception e1) {}
+			try {
+				input.close();
+			} catch (Exception e1) {}
 			if (!s.isClosed()) {
 				try {
 					s.close();
 				} catch (IOException e1) {}
 			}
-			
-			try {
-				output.close();
-			} catch (Exception e1) {}
-		
-			try {
-				input.close();
-			} catch (Exception e1) {}
 		}
 	}
 	

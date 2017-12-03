@@ -120,7 +120,7 @@ public class ClientConnection implements Runnable {
             outputstrm = clntSocket.getOutputStream();
             
             long timetaken = System.currentTimeMillis();
-            outputstrm.write(txtFrmSrvr.getBytes());
+            // outputstrm.write(txtFrmSrvr.getBytes());
 
             // BufferedReader bis = new BufferedReader(clntSocket.getInputStream());
             
@@ -131,12 +131,26 @@ public class ClientConnection implements Runnable {
      		// 	 request.add(inputLine);
   			// }
   			
- 			byte[] req = in.readAllBytes();
- 			
- 			String reqString = new String(req);
- 			System.out.println("[debug] reqString was:" + reqString);
+ 			//byte[] req = in.readAllBytes();
+
+        	byte[] temp = new byte[32];
+            //ArrayList<Integer> req = new ArrayList<Integer>();
+            int read;
+            String reqString = "";
+            while ((read = in.read()) > 0) {
+            	//req.add(read);
+            	reqString += (char) read;
+            	System.out.println(reqString);
+            }
+            
+            
+ 			//String reqString = new String(temp);
  			// tricky line; splits the raw request string; Arrays.asList makes it an arrayList; This goes into the ArrayList constructor
  			ArrayList<String> request = new ArrayList<String>(Arrays.asList(reqString.split("\n")));
+ 			
+ 			for (String r : request) {
+ 				System.out.println("[debug] Read one header as " + r);
+ 			}
  			
   			//processing request
   			if (userPermissions.containsKey(userRequesting = request.get(0))) {
@@ -206,22 +220,23 @@ public class ClientConnection implements Runnable {
   				}
   			} else {
   				outputstrm.write("Sorry invalid request name".getBytes());
+  				
   			}
   			
             System.out.println("Your request has processed in time : " + timetaken);
         } catch (IOException e) {           
             e.printStackTrace();
         } finally {
-        	// Always close everything
-        	try {
-        		clntSocket.close();
-        	} catch (Exception e) {}
             try {
 				outputstrm.close();
 			} catch (Exception e) {}
             try {
 				in.close();
 			} catch (Exception e) {}
+        	// Always close everything
+        	try {
+        		clntSocket.close();
+        	} catch (Exception e) {}
         }
         
     }

@@ -31,8 +31,7 @@ public class ATM extends Client {
 		// main method works like a shell
 		public void run() {
 			in = new Scanner(System.in);
-			System.out.println(
-					"atm> You just built an ATM!\nPutting $1000 cash into the machine.\nType \"login <username>\" to log in, or type \"help\" for a list of commands.");
+			System.out.println("You just built an ATM!\nPutting $1000 cash into the machine.\nType \"login <username>\" to log in, or type \"help\" for a list of commands.");
 			cashInMachine = 1000;
 			while (true) {
 				System.out.print("atm> ");
@@ -40,8 +39,7 @@ public class ATM extends Client {
 
 				// help
 				if (input[0].equals("help")) {
-					System.out.println(
-							"Here's a list of commands!\nlogin <username>\t\tLogs in the user\nlogout\t\t\t\t Logs the user out\ngetbalance\t\t\t Gets your balance if you're logged in\nwithdraw <amount>\t\t Withdraw some amount of money");
+					System.out.println("Here's a list of commands!\nlogin <username>\t\tLogs in the user\nlogout\t\t\t\t Logs the user out\ngetbalance\t\t\t Gets your balance if you're logged in\nwithdraw <amount>\t\t Withdraw some amount of money");
 
 					// login
 				} else if (input[0].equals("login")) {
