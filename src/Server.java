@@ -17,31 +17,34 @@ public class Server implements Runnable {
     protected				ServerSocket serverSocketVal = null;
     protected				boolean hasStopped = false;
     protected				Thread movingThread = null;
-    private Hashtable<String,CustomerAccount> userPermissions = new Hashtable<String,CustomerAccount>();
+    private  static Hashtable<String,CustomerAccount> userPermissions = new Hashtable<String,CustomerAccount>();
 
     public static void main(String[] args) {
     	// Read properties for stuff like port and host
     	try {
 			FileReader r = new FileReader("config.properties");
-			
+
 			Properties p = new Properties();
 			p.load(r);
-			
+
 			serverPortVal = Integer.parseInt(p.getProperty("port"));
 		} catch (Exception e) {
 			System.out.println("Couldn't read config file. Setting port to 8080.");
 			serverPortVal = 8080;
 			e.printStackTrace();
 		}
-    	
-    	System.out.println("[debug] Calling run.");
+
+      System.out.println("[debug] Adding a base user named admin");
+      userPermissions.put("admin", new CustomerAccount(2, 99999.99f));
+
+    	System.out.println("[debug] Running the server.");
     	Server s = new Server();
     	Thread t = new Thread(s);
     	t.start();
-    	
-    	
+
+
     }
-    
+
     public void ServerMultithreaded(int port) {
         this.serverPortVal = port;
 
@@ -51,9 +54,9 @@ public class Server implements Runnable {
         synchronized(this) {
             this.movingThread = Thread.currentThread();
         }
-        
+
         opnSvrSocket();
-        
+
         while(!hasStopped()) {
             Socket clntSocket = null;
             try {
@@ -73,14 +76,14 @@ public class Server implements Runnable {
                        clntSocket, "Please return user ID:")
                       ).start();
         }
-        
+
         System.out.println("Server has Stopped...Please check") ;
     }
-    
+
     private synchronized boolean hasStopped() {
         return this.hasStopped;
     }
-    
+
     public synchronized void stop() {
         this.hasStopped = true;
         try {
@@ -89,7 +92,7 @@ public class Server implements Runnable {
             throw new RuntimeException("Server can not be closed - Please check error", e);
         }
     }
-    
+
     private void opnSvrSocket() {
         try {
             this.serverSocketVal = new ServerSocket(this.serverPortVal);
@@ -110,52 +113,53 @@ public class ClientConnection implements Runnable {
         this.clntSocket = clntSocket;
         this.txtFrmSrvr = txtFrmSrvr;
     }
-    
+
     public void run() {
     	System.out.println("[debug] ClientConnection thread started.");
     	InputStream in = null;
     	OutputStream outputstrm = null;
-      String response
-    	
+      String response = "";
+
         try {
         	in = clntSocket.getInputStream();
           outputstrm = clntSocket.getOutputStream();
-            
+
           long timetaken = System.currentTimeMillis();
             // outputstrm.write(txtFrmSrvr.getBytes());
 
             // BufferedReader bis = new BufferedReader(clntSocket.getInputStream());
-            
-            
-            
+
+
+
  			// ArrayList<String> request = new ArrayList<String>();
   			// while ((inputLine = bis.readLine()) != null) {
      		// 	 request.add(inputLine);
   			// }
-  			
+
  			//byte[] req = in.readAllBytes();
 
         	byte[] temp = new byte[32];
             //ArrayList<Integer> req = new ArrayList<Integer>();
           int read;
           String reqString = "";
-          while ((read = in.read()) > 0) {
+          while ((read = in.read()) != 255) {
             	//req.add(read);
             	reqString += (char) read;
             	System.out.println(reqString);
+              System.out.println(read);
           }
-            
-            
+
+
  			//String reqString = new String(temp);
  			// tricky line; splits the raw request string; Arrays.asList makes it an arrayList; This goes into the ArrayList constructor
  			    ArrayList<String> request = new ArrayList<String>(Arrays.asList(reqString.split("\n")));
- 			
+
  			    for (String r : request) {
  				   System.out.println("[debug] Read one header as " + r);
  			    }
 
 
-          
+
            //processing request
          //get permissions for user requesting
           if (userPermissions.containsKey(userRequesting = request.get(0))) {
@@ -171,7 +175,7 @@ public class ClientConnection implements Runnable {
               userPermissions.put(userName, new CustomerAccount(Integer.parseInt(request.get(4)), Integer.parseInt(request.get(3))));
               response = "0 ";
             }
-          } 
+          }
           //user operation is requested for exists
           else if (userPermissions.containsKey(userName= request.get(2))) {
             userAccount = userPermissions.get(userName);
@@ -182,12 +186,12 @@ public class ClientConnection implements Runnable {
                 // Java doesn't let you easily turn floats into bytes
                 // So let's turn it into a string, then a byte[]
                 response = "0 " +userPermissions.get(userName).getBalance().toString();
-              } 
+              }
               else{
                 response ="1 ";
               }
             }
-            
+
             /*
             *make payment
             *checks if user is user requesting or if user requesting has admin rights
@@ -203,18 +207,18 @@ public class ClientConnection implements Runnable {
                   user2.deposit(transactionAmount);
                   userAccount.withdraw(transactionAmount);
                   response ="0 "+userPermissions.get(userName).getBalance().toString();
-                } 
+                }
                 //insufficient funds
                 else {
                   response = "3 ";
                 }
-              } 
+              }
               //second user does not exist
               else {
                 response = "4 ";
               }
             }
-            
+
             /*
             * withdrawl method
             *checks if user requesting is user
@@ -229,7 +233,7 @@ public class ClientConnection implements Runnable {
                   userAccount.withdraw(transactionAmount);
                   response = "0 "+userPermissions.get(userName).getBalance().toString();
                 }
-                //insufficient funds 
+                //insufficient funds
                 else
                   outputstrm.write("3 ".getBytes());
             }
@@ -243,39 +247,38 @@ public class ClientConnection implements Runnable {
             //methodName not found
             else{
               outputstrm.write("5 ".getBytes());
-          
+
             }
-            
-          } 
+
+          }
           //requesting user not found
           else {
             response = "2 ";
           }
         }
         outputstrm.write(response.getBytes());
- 			
-  			
 
 
 
 
-        } catch (IOException e) {           
+
+
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {
-				outputstrm.close();
-			} catch (Exception e) {}
+				        outputstrm.close();
+			      } catch (Exception e) {}
             try {
-				in.close();
-			} catch (Exception e) {}
+				        in.close();
+			      } catch (Exception e) {}
         	// Always close everything
-        	try {
-        		clntSocket.close();
+        	  try {
+        		    clntSocket.close();
         	} catch (Exception e) {}
         }
-        
-    
-}
 
 
-}
+      }
+    }
+  }
