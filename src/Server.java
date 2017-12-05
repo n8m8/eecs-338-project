@@ -145,8 +145,8 @@ public class ClientConnection implements Runnable {
           while ((read = in.read()) != 255) {
             	//req.add(read);
             	reqString += (char) read;
-            	System.out.println(reqString);
-              System.out.println(read);
+            	//System.out.println(reqString);
+             // System.out.println(read);
           }
 
 
@@ -167,7 +167,7 @@ public class ClientConnection implements Runnable {
 
           methodName = request.get(1);
 	  if (methodName.equals("login")){
-		return "0 "
+		response = "0 ";
           }
 	  //determine if user is real, to be added, or erroneous
           else if (methodName.equals("createUser")) {
@@ -175,8 +175,12 @@ public class ClientConnection implements Runnable {
               response = "6 ";
             }
             else{
-              userPermissions.put(userName, new CustomerAccount(Integer.parseInt(request.get(4)), Integer.parseInt(request.get(3))));
-              response = "0 ";
+		if(permissions == 2){
+              		userPermissions.put(userName, new CustomerAccount(Integer.parseInt(request.get(3)), Integer.parseInt(request.get(2))));
+              		response = "0 ";
+		}
+		else
+			response = "1 ";
             }
           }
           //user operation is requested for exists
