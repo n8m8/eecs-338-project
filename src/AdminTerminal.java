@@ -93,6 +93,8 @@ public class AdminTerminal extends Client{
 					} else {
 						System.out.println("Incorrect arguments! Use delete <username>");
 					}
+				} else {
+					System.out.println("That's not a command! Type help for help.");
 				}
 			}
 		}
@@ -123,7 +125,7 @@ public class AdminTerminal extends Client{
 			if (loginState) {
 				String response = sendData(currentUsername + "\ngetBalance\n" + usernameToGet);
 				if (response.charAt(0) == '0') {
-					System.out.println(usernameToGet + " 's balance is " + getToks(response)[1]);
+					System.out.println(usernameToGet + "'s balance is " + getToks(response)[1]);
 				} else {
 					System.out.println("Getting balance failed!");
 				}
@@ -179,7 +181,7 @@ public class AdminTerminal extends Client{
 		}
 
 		public void createUser(String newUsername, String permissions) {
-			String response = sendData(currentUsername + "\n" + "createUser\n" + newUsername + "\n" + permissions);
+			String response = sendData(currentUsername + "\ncreateUser\n" + newUsername + "\n" + permissions);
 			if (response.charAt(0) == '0') {
 				System.out.println("User created successfully!");
 			} else {

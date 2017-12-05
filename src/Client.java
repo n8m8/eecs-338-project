@@ -43,19 +43,19 @@ public abstract class Client {
 		OutputStream output = null;
 		InputStream input = null;
 		try {
-			System.out.println("[debug] Opening socket for " + hostname + ":" + port);
+			// System.out.println("[debug] Opening socket for " + hostname + ":" + port);
 			s = new Socket(hostname, port);
 
 			output = s.getOutputStream();
 			input = s.getInputStream();
-			System.out.println("[debug] about to write:" + args);
+			// System.out.println("[debug] about to write:" + args);
 			//output.write(args.getBytes());
 			for (char c : args.toCharArray()) {
 				output.write(c);
 			}
 			output.write(-1);
 
-			System.out.println("[debug] About to wait for a response");
+			// System.out.println("[debug] About to wait for a response");
 
 			byte[] response = input.readAllBytes();
 
@@ -64,8 +64,10 @@ public abstract class Client {
 				returnString += (char) b;
 			}
 
-			System.out.println("[debug] Received the response! " + returnString);
-
+			// System.out.println("[debug] Received the response! " + returnString);
+			if (returnString.length() == 0) {
+				returnString = "9 ";	// 9 = did not receive response
+			}
 			return new String(returnString);
 
 		} catch (Exception e) {
