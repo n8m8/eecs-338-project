@@ -47,7 +47,6 @@ public class AdminTerminal extends Client{
 
 				// logout shell function
 				} else if (input[0].equals("logout")) {
-					// TODO logout
 					logout();
 
 				// get balance shell function
@@ -58,9 +57,26 @@ public class AdminTerminal extends Client{
 						System.out.println("Incorrect arguments! Use getbalance <username>");
 					}
 
+				// Move money from one account to another
+				} else if (input[0].equals("makepayment")) {
+					if (checkNumArgs(input, 4)) {
+						makePayment(input[1], input[2], Float.parseFloat(input[3]));
+					}
+					
 				// withdraw function
 				} else if (input[0].equals("withdraw")) {
-					// TODO withdraw
+					if (checkNumArgs(input, 3)) {
+						withdraw(input[1], Float.parseFloat(input[2]));
+					} else {
+						System.out.println("Incorrect arguments! Use withdraw <username> <amount>");
+					}
+
+				} else if (input[0].equals("deposit")) {
+					if (checkNumArgs(input, 3)) {
+						deposit(input[1], Float.parseFloat(input[2]));
+					} else {
+						System.out.println("Incorrect arguments! Use deposit <username> <amount>");
+					}
 
 				// create account function
 				} else if (input[0].equals("create")) {
@@ -72,11 +88,14 @@ public class AdminTerminal extends Client{
 
 				// delete account function
 				} else if (input[0].equals("delete")) {
-					// TODO delete
+					if (checkNumArgs(input, 2)) {
+						deleteUser(input[1]);
+					} else {
+						System.out.println("Incorrect arguments! Use delete <username>");
+					}
 				}
 			}
 		}
-
 
 		public void login(String username) {
 			if (!loginState) {
@@ -113,14 +132,50 @@ public class AdminTerminal extends Client{
 			}
 		}
 
-		public void makePayment(String destinationUsername, float amount) {
+		public void makePayment(String sourceUsername, String destinationUsername, float amount) {
 			if (loginState) {
-				//String response = sendData(c)
+				String response = sendData(currentUsername + "\nmakePayment\n" + sourceUsername + "\n" + destinationUsername + "\n" + amount);
+				
+				if (response.charAt(0) == '0') {
+					System.out.println("Money transfered successfully!");
+					String newBalance = sendData(currentUsername + "\ngetBalance\n" + currentUsername);
+					System.out.println("Your new balance is " + getToks(newBalance)[1]);
+				} else {
+					System.out.println("Unable to transfer money: " + response.charAt(0));
+				}
 			}
 		}
 
-		public void withdraw(float amount) {
-
+		public void withdraw(String userToTake, float amount) {
+			if (loginState) {
+				String response = sendData(currentUsername + "\nwithdraw\n" + userToTake + "\n" + amount);
+				if (response.charAt(0) == '0') {
+					System.out.println("Success! You just withdrew " + amount + " cash.");
+					String newBalResp = sendData(currentUsername + "\ngetBalance\n" + userToTake);
+					if (newBalResp.charAt(0) == '0') {
+						System.out.println(userToTake + "'s new balance is " + getToks(newBalResp)[1]);
+					} else {
+						System.out.println("Failed to get " + userToTake + "'s new balance.");
+					}
+				} else {
+					System.out.println("Failed to execute function");
+				}
+			}
+		}
+		
+		public void deposit(String userToCredit, float amount) {
+			if (loginState) {
+				String response = sendData(currentUsername + "\ndeposit\n" + userToCredit + "\n" + amount);
+				if (response.charAt(0) == '0') {
+					System.out.println(userToCredit + "'s account credited successfully!");
+					String newBalResp = sendData(currentUsername + "\ngetBalance\n" + userToCredit);
+					if (newBalResp.charAt(0) == '0') {
+						System.out.println(userToCredit + "'s balance is now " + getToks(newBalResp)[1]);
+					} else {
+						System.out.println("Unable to get " + userToCredit + "'s new balance.");
+					}
+				}
+			}
 		}
 
 		public void createUser(String newUsername, String permissions) {
@@ -133,7 +188,12 @@ public class AdminTerminal extends Client{
 		}
 
 		public void deleteUser(String userToDelete) {
-
+			String response = sendData(currentUsername + "\ndeleteUser\n" + userToDelete);
+			if (response.charAt(0) == '0') {
+				System.out.println("Account terminated successfully.");
+			} else {
+				System.out.println("Unable to terminate account!" + getToks(response)[1]);
+			}
 		}
 
 	}
