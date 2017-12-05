@@ -209,14 +209,14 @@ public class ClientConnection implements Runnable {
             */
 
             else if (methodName.equals("makePayment")&&(userName.equals(userRequesting) || permissions== 2)) {
-              Float transactionAmount= Float.parseFloat(request.get(3));
+              Float transactionAmount= Float.parseFloat(request.get(4));
               //if second user exists
-              if (userPermissions.containsKey(request.get(4))) {
-                CustomerAccount user2 = userPermissions.get(request.get(4));
+              if (userPermissions.containsKey(request.get(3))) {
+                CustomerAccount user2 = userPermissions.get(request.get(3));
                 //check if user has funds available
-                if (userAccount.getBalance() >= transactionAmount) {
+                if (userPermissions.get(userName).getBalance() >= transactionAmount) {
                   user2.deposit(transactionAmount);
-                  userAccount.withdraw(transactionAmount);
+                  userPermissions.get(userName).withdraw(transactionAmount);
                   response ="0 "+userPermissions.get(userName).getBalance().toString();
                 }
                 //insufficient funds
@@ -231,17 +231,15 @@ public class ClientConnection implements Runnable {
             }
 
             /*
-            * withdrawl method
+            * withdrawal method
             *checks if user requesting is user
             *if not checks that user requesting is an atm or admin
             */
-            else if (methodName.equals("withdrawl") && (userName.equals(userRequesting) || permissions == 0 || permissions == 2)) {
+            else if (methodName.equals("withdraw") && (userName.equals(userRequesting) || permissions == 0 || permissions == 2)) {
               Float transactionAmount= Float.parseFloat(request.get(3));
-              CustomerAccount user2 = userPermissions.get(request.get(4));
               //checks if user balance is over requested amount
-              if (userAccount.getBalance() >= transactionAmount){
-                  user2.deposit(transactionAmount);
-                  userAccount.withdraw(transactionAmount);
+              if (userPermissions.get(userName).getBalance() >= transactionAmount){
+                  userPermissions.get(userName).withdraw(transactionAmount);
                   response = "0 "+userPermissions.get(userName).getBalance().toString();
                 }
                 //insufficient funds
