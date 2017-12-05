@@ -166,8 +166,11 @@ public class ClientConnection implements Runnable {
           permissions = userPermissions.get(userRequesting).getPermissions();
 
           methodName = request.get(1);
-          //determine if user is real, to be added, or erroneous
-          if (methodName.equals("createUser")) {
+	  if (methodName.equals("login")){
+		return "0 "
+          }
+	  //determine if user is real, to be added, or erroneous
+          else if (methodName.equals("createUser")) {
             if(userPermissions.containsKey(userName)) {
               response = "6 ";
             }
