@@ -52,7 +52,11 @@ public class AdminTerminal extends Client{
 
 				// get balance shell function
 				} else if (input[0].equals("getbalance")) {
-					// TODO getbalance
+					if (checkNumArgs(input, 2)) {
+						getBalance(input[1]);
+					} else {
+						System.out.println("Incorrect arguments! Use getbalance <username>");
+					}
 
 				// withdraw function
 				} else if (input[0].equals("withdraw")) {
@@ -77,13 +81,12 @@ public class AdminTerminal extends Client{
 		public void login(String username) {
 			if (!loginState) {
 				String response = sendData(username + "\nlogin\n");
-				if (response.substring(0, 5).toLowerCase().equals("error")) {
-
-				} else {
-					loginState = true;
+				if (response.charAt(0) == '0') {
+					System.out.println("Logged in successfully!");
 					currentUsername = username;
-					System.out.println("[debug] response was:"+response);
-					System.out.println("Successfully logged in.");
+					loginState = true;
+				} else {
+					System.out.println("Login failed!");
 				}
 			}
 		}
@@ -97,12 +100,23 @@ public class AdminTerminal extends Client{
 			}
 		}
 
-		public void getBalance() {
-
+		public void getBalance(String usernameToGet) {
+			if (loginState) {
+				String response = sendData(currentUsername + "\ngetBalance\n" + usernameToGet);
+				if (response.charAt(0) == '0') {
+					System.out.println(usernameToGet + " 's balance is " + getToks(response)[1]);
+				} else {
+					System.out.println("Getting balance failed!");
+				}
+			} else {
+				System.out.println("Please log in to do commands.");
+			}
 		}
 
 		public void makePayment(String destinationUsername, float amount) {
-
+			if (loginState) {
+				//String response = sendData(c)
+			}
 		}
 
 		public void withdraw(float amount) {
