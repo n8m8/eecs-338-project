@@ -35,7 +35,7 @@ public class AdminTerminal extends Client{
 
 				// help shell function
 				if (input[0].equals("help")) {
-					System.out.println("Here's a list of commands!\nlogin <username>\t\tLogs in the user\nlogout\t\t\t\t Logs the user out\ngetbalance <username>\t\t\t Gets a user's balance\nwithdraw <username> <amount>\t\t Withdraw some amount of money from any user's account\nmakepayment <sourceuser> <destinationuser> <amount>\t moves money from one account to another\ncreate <newusername> <permission> (where <permission>='admin' or 'customer')\t creates a user account\ndelete <username>\t deletes account\nexit\t\t Exits the program");
+					System.out.println("Here's a list of commands!\nlogin <username>\t\tLogs in the user\nlogout\t\t\t\t Logs the user out\ngetbalance <username>\t\t\t Gets a user's balance\nwithdraw <username> <amount>\t\t Withdraw some amount of money from any user's account\nmakepayment <sourceuser> <destinationuser> <amount>\t moves money from one account to another\ncreate <newusername> <permission> (where <permission>=0 (atm) or 1 (customerPortal) or 2 (admin)\t creates a user account\ndelete <username>\t deletes account\nexit\t\t Exits the program");
 
 				// login shell function
 				} else if (input[0].equals("login")) {
@@ -145,8 +145,8 @@ public class AdminTerminal extends Client{
 				
 				if (response.charAt(0) == '0') {
 					System.out.println("Money transfered successfully!");
-					String newBalance = sendData(currentUsername + "\ngetBalance\n" + currentUsername);
-					System.out.println("Your new balance is " + getToks(newBalance)[1]);
+					String newBalance = sendData(currentUsername + "\ngetBalance\n" + sourceUsername);
+					System.out.println(sourceUsername + "'s new balance is " + getToks(newBalance)[1]);
 				} else {
 					System.out.println("Unable to transfer money: " + response.charAt(0));
 				}

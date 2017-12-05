@@ -28,6 +28,8 @@ public abstract class Client {
 
 		port = Integer.parseInt(p.getProperty("port"));
 		hostname = p.getProperty("host");
+		
+		
 		System.out.println("[debug] Set init values to " + hostname + ":" + port);
 		} catch (Exception e) {
 			System.out.println("Couldn't read config file! Hardcoding to localhost:8080.");
