@@ -35,7 +35,8 @@ public class Server implements Runnable {
 		}
 
       System.out.println("[debug] Adding a base user named admin");
-      userPermissions.put("admin", new CustomerAccount(2, 99999.99f));
+      userPermissions.put("admin", new CustomerAccount(2));
+	userPermissions.get("admin").deposit(99999.9f);
 
     	System.out.println("[debug] Running the server.");
     	Server s = new Server();
@@ -164,20 +165,22 @@ public class ClientConnection implements Runnable {
          //get permissions for user requesting
           if (userPermissions.containsKey(userRequesting = request.get(0))) {
           permissions = userPermissions.get(userRequesting).getPermissions();
-	  userName = request.get(2);
+	 try{ userName = request.get(2);}catch(Exception e) { userName = "None Submitted";}
 
           methodName = request.get(1);
 	  if (methodName.equals("login")){
 		response = "0 ";
           }
+	
 	  //determine if user is real, to be added, or erroneous
           else if (methodName.equals("createUser")) {
+	     
             if(userPermissions.containsKey(userName)) {
               response = "6 ";
             }
             else{
 		if(permissions == 2){
-              		userPermissions.put(userName, new CustomerAccount(Integer.parseInt(request.get(3)), Integer.parseInt(request.get(2))));
+              		userPermissions.put(userName, new CustomerAccount(Integer.parseInt(request.get(3))));
               		response = "0 ";
 		}
 		else

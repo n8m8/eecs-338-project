@@ -2,9 +2,9 @@ public class CustomerAccount{
 	private int permissions;
 	private Float balance;
 	private Object lock = new Object();
-	public CustomerAccount(int permissions, float balance){
+	public CustomerAccount(int permissions){
 		synchronized (lock) {
-			this.balance = balance;
+			this.balance = 0.0f;
 			this.permissions = permissions;
 		}
 	}
