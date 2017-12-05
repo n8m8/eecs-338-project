@@ -164,6 +164,7 @@ public class ClientConnection implements Runnable {
          //get permissions for user requesting
           if (userPermissions.containsKey(userRequesting = request.get(0))) {
           permissions = userPermissions.get(userRequesting).getPermissions();
+	  userName = request.get(2);
 
           methodName = request.get(1);
 	  if (methodName.equals("login")){
