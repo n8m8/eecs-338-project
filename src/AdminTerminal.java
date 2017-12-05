@@ -124,11 +124,11 @@ public class AdminTerminal extends Client{
 		}
 
 		public void createUser(String newUsername, String permissions) {
-			String response = sendData(currentUsername + "\n" + "create\n" + newUsername + "\n" + permissions);
-			if (response.substring(0, 5).toLowerCase().equals("error")) {
-
+			String response = sendData(currentUsername + "\n" + "createUser\n" + newUsername + "\n" + permissions);
+			if (response.charAt(0) == '0') {
+				System.out.println("User created successfully!");
 			} else {
-				System.out.println("Created the user!");
+				System.out.println("User creation failed!");
 			}
 		}
 
