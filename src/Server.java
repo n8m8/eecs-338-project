@@ -11,6 +11,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Properties;
+import java.io.PrintWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.util.Scanner;
 
 public class Server implements Runnable {
     protected static		int serverPortVal;
@@ -39,13 +43,24 @@ public class Server implements Runnable {
 	userPermissions.get("admin").deposit(99999.9f);
 
     	System.out.println("[debug] Running the server.");
+	
     	Server s = new Server();
     	Thread t = new Thread(s);
     	t.start();
+	
+    		
+	
+	Scanner in = new Scanner(System.in);
 
-
-    }
-
+	while (true) {
+			System.out.print("\n \n \nType exit to quit \n \n \n");
+			String input = in.nextLine();
+			input = input.substring(0,4);
+			if (input.toLowerCase().equals("exit")) {
+				s.serverStop();
+			}
+	}
+}
     public void ServerMultithreaded(int port) {
         this.serverPortVal = port;
 
@@ -54,8 +69,8 @@ public class Server implements Runnable {
     public void run() {
         synchronized(this) {
             this.movingThread = Thread.currentThread();
+		final Thread thread = this.movingThread;
         }
-
         opnSvrSocket();
 
         while(!hasStopped()) {
@@ -85,13 +100,13 @@ public class Server implements Runnable {
         return this.hasStopped;
     }
 
-    public synchronized void stop() {
+    public synchronized void serverStop() {
         this.hasStopped = true;
         try {
             this.serverSocketVal.close();
         } catch (IOException e) {
             throw new RuntimeException("Server can not be closed - Please check error", e);
-        }
+        } finally { System.exit(0);}
     }
 
     private void opnSvrSocket() {
@@ -109,13 +124,14 @@ public class ClientConnection implements Runnable {
  	protected String methodName, userRequesting, destination, userName;
  	protected Float amount;
  	protected CustomerAccount userAccount;
-
+	protected File file = null;
     public ClientConnection(Socket clntSocket, String txtFrmSrvr) {
         this.clntSocket = clntSocket;
         this.txtFrmSrvr = txtFrmSrvr;
-    }
+}
 
     public void run() {
+
     	System.out.println("[debug] ClientConnection thread started.");
     	InputStream in = null;
     	OutputStream outputstrm = null;
@@ -126,28 +142,13 @@ public class ClientConnection implements Runnable {
           outputstrm = clntSocket.getOutputStream();
 
           long timetaken = System.currentTimeMillis();
-            // outputstrm.write(txtFrmSrvr.getBytes());
 
-            // BufferedReader bis = new BufferedReader(clntSocket.getInputStream());
-
-
-
- 			// ArrayList<String> request = new ArrayList<String>();
-  			// while ((inputLine = bis.readLine()) != null) {
-     		// 	 request.add(inputLine);
-  			// }
-
- 			//byte[] req = in.readAllBytes();
 
         	byte[] temp = new byte[32];
-            //ArrayList<Integer> req = new ArrayList<Integer>();
           int read;
           String reqString = "";
           while ((read = in.read()) != 255) {
-            	//req.add(read);
             	reqString += (char) read;
-            	//System.out.println(reqString);
-             // System.out.println(read);
           }
 
 
@@ -265,8 +266,12 @@ public class ClientConnection implements Runnable {
             response = "2 ";
           }
         }
+	
         outputstrm.write(response.getBytes());
-
+	PrintWriter out = new PrintWriter(new FileWriter("log.txt", true));
+	System.out.println(response);
+	out.println("User Requesting: "+ userRequesting + " Operation: " + methodName + " Response: " + response);
+	out.close();
 
 
 

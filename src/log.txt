@@ -1,0 +1,10 @@
+User Requesting: admin Operation: login Response: 0 
+User Requesting: admin Operation: createUser Response: 0 
+User Requesting: admin Operation: createUser Response: 0 
+User Requesting: admin Operation: deposit Response: 2 
+User Requesting: admin Operation: makePayment Response: 2 
+User Requesting: admin Operation: makePayment Response: 3 
+User Requesting: admin Operation: deposit Response: 0 2000.0
+User Requesting: admin Operation: getBalance Response: 0 2000.0
+User Requesting: admin Operation: makePayment Response: 0 1800.0
+User Requesting: admin Operation: getBalance Response: 0 1800.0
