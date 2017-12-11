@@ -8,3 +8,23 @@ User Requesting: admin Operation: deposit Response: 0 2000.0
 User Requesting: admin Operation: getBalance Response: 0 2000.0
 User Requesting: admin Operation: makePayment Response: 0 1800.0
 User Requesting: admin Operation: getBalance Response: 0 1800.0
+User Requesting: admin Operation: login Response: 0 
+User Requesting: admin Operation: createUser Response: 0 
+User Requesting: nfw10 Operation: login Response: 0 
+User Requesting: nfw10 Operation: login Response: 0 
+User Requesting: nfw10 Operation: getBalance Response: 0 0.0
+User Requesting: admin Operation: login Response: 0 
+User Requesting: admin Operation: deposit Response: 0 400.0
+User Requesting: admin Operation: getBalance Response: 0 400.0
+User Requesting: nfw10 Operation: getBalance Response: 0 400.0
+User Requesting: nfw10 Operation: withdraw Response: 0 380.0
+User Requesting: nfw10 Operation: getBalance Response: 0 380.0
+User Requesting: nfw10 Operation: login Response: 0 
+User Requesting: null Operation: null Response: 
+User Requesting: null Operation: null Response: 
+User Requesting: nfw10 Operation: login Response: 0 
+User Requesting: nfw10 Operation: getBalance Response: 0 380.0
+User Requesting: nfw10 Operation: makePayment Response: 0 180.0
+User Requesting: nfw10 Operation: getBalance Response: 0 180.0
+User Requesting: admin Operation: login Response: 0 
+User Requesting: admin Operation: getBalance Response: 0 100199.9

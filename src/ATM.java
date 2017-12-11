@@ -56,11 +56,21 @@ public class ATM extends Client {
 
 				// get balance shell function
 				} else if (input[0].equals("getbalance")) {
-					// TODO getbalance
+					if (checkNumArgs(input, 1)) {
+						getBalance();
+					} else {
+						System.out.println("Incorrect arguments! Use getbalance");
+					}
 
 				// withdraw function
 				} else if (input[0].equals("withdraw")) {
-					// TODO withdraw
+					if (checkNumArgs(input, 2)) {
+						withdraw(Float.parseFloat(input[1]));
+					} else {
+						System.out.println("Incorrect arguments! Use withdraw <amount>");
+					}
+				} else if (input[0].equals("exit")) {
+					System.exit(0);
 				}
 			}
 		}
@@ -68,13 +78,12 @@ public class ATM extends Client {
 		public void login(String username) {
 			if (!loginState) {
 				String response = sendData(username + "\nlogin\n");
-				if (response.substring(0, 5).toLowerCase().equals("error")) {
-
-				} else {
-					loginState = true;
+				if (response.charAt(0) == '0') {
+					System.out.println("Logged in successfully!");
 					currentUsername = username;
-					System.out.println("[debug] response was:" + response);
-					System.out.println("Successfully logged in.");
+					loginState = true;
+				} else {
+					System.out.println("Login failed!");
 				}
 			}
 		}
@@ -83,17 +92,42 @@ public class ATM extends Client {
 			if (loginState) {
 				currentUsername = "";
 				loginState = false;
+				System.out.println("You logged out.");
 			} else {
 				System.out.println("You can't log out if you're not logged in!");
 			}
 		}
 
 		public void getBalance() {
-
+			if (loginState) {
+				String response = sendData(currentUsername + "\ngetBalance\n" + currentUsername);
+				if (response.charAt(0) == '0') {
+					System.out.println("Your balance is " + getToks(response)[1]);
+				} else {
+					System.out.println("Getting balance failed!");
+				}
+			} else {
+				System.out.println("Please log in to do commands.");
+			}
 		}
 
 		public void withdraw(float amount) {
-
+			if (loginState) {
+				String response = sendData(currentUsername + "\nwithdraw\n" + currentUsername + "\n" + amount);
+				if (response.charAt(0) == '0') {
+					cashInMachine -= amount;
+					System.out.println("Success! You just withdrew " + amount + " cash.");
+					System.out.println("[debug] ATM's balance is now " + cashInMachine);
+					String newBalResp = sendData(currentUsername + "\ngetBalance\n" + currentUsername);
+					if (newBalResp.charAt(0) == '0') {
+						System.out.println("Your new balance is " + getToks(newBalResp)[1]);
+					} else {
+						System.out.println("Failed to get your new balance.");
+					}
+				} else {
+					System.out.println("Failed to execute function");
+				}
+			}
 		}
 	}
 
